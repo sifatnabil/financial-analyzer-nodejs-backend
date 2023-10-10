@@ -1,0 +1,6 @@
+__pycache__
+.env
+*.pdf
+data_cleaning*
+*.csv
+*.json
