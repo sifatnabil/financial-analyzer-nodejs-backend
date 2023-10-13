@@ -10,7 +10,7 @@ from utils.processing import (
 )
 from utils.analyzer import calculate_summary
 
-router = APIRouter()
+router = APIRouter(prefix="/transactions", tags=["Transactions"])
 
 @router.post("/process")
 def process_and_store_data(txs: List[Transaction]):
@@ -18,8 +18,6 @@ def process_and_store_data(txs: List[Transaction]):
     df = pd.json_normalize(
         [tx.to_dict() for tx in txs]
     )
-
-    print(df.head())
 
     df["date"] = df["date"].apply(lambda x: validate_and_fix_date(x)[1])
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")

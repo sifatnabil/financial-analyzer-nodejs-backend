@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from routers import analyze
+from routers import transactions
 
 app = FastAPI(
     title="Financial Analyzer APIs",
@@ -9,7 +9,7 @@ app = FastAPI(
     openapi_url="/api/openapi.json"
 )
 
-app.include_router(analyze.router, prefix="/api")
+app.include_router(transactions.router, prefix="/api")
 
 @app.get("/")
 async def root():
