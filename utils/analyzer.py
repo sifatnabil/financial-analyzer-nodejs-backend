@@ -88,16 +88,19 @@ def calculate_summary(df: DataFrame) -> dict:
             last_month_daily_summary['total_spending'].cumsum()
         
         
-        # Set a value for the threshold
+        # Select the indexes to find out the anmaly rows
         caution_idx = \
             last_month_daily_summary[
                 (last_month_daily_summary['cumulative_sum'] > cur_avg) & \
                 (last_month_daily_summary['total_income'] == 0)
             ].index
+        
+        # Find the Anomaly Date
         caution_date = last_month_daily_summary.loc[caution_idx, "date"].min()
 
-        
+        # Filter out the anomaly rows
         caution_df = last_month_daily_summary.loc[caution_idx].merge(df, on="date", how="left")
+        
         
         caution_merchant = caution_df["merchant"].mode()[0]
         caution_amount = caution_df["total_spending"].max()
