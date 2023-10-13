@@ -1,20 +1,6 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
-from pandas import DataFrame
-
-def create_dataframe(data: list | dict) -> DataFrame:
-    """Create a dataframe from the input data
-    
-    Args:
-        data (list | dict): The input data
-    
-    Returns:
-        DataFrame: The dataframe containing the data
-    """
-
-    df = pd.json_normalize(data)
-    return df
 
 def validate_and_fix_date(input_date):
     """Validates the dates and fixes them if they are in the future
