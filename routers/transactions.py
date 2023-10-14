@@ -1,7 +1,9 @@
+import json
 import pandas as pd
 from fastapi import APIRouter
 from typing import List
 from models.transacations import Transaction
+from models.summary import Summary
 from utils.processing import (
     validate_and_fix_date,
     validate_and_fix_amount,
@@ -14,7 +16,6 @@ from schema.schemas import list_serial
 from pymongo import UpdateOne
 
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
-
 @router.post("/process")
 def process_and_store_data(txs: List[Transaction]) -> bool:
 
@@ -74,7 +75,11 @@ def analyze_data(txs: List[Transaction]) -> dict:
     if df.shape[0] < 25:
         return {"error": "Not enough data to analyze"}
    
-    # * Calculate the Summary here
+    #  Calculate the Summary here
     summary = calculate_summary(df)
 
-    return summary
+    # Store Summary in the collection
+    collection_name = get_collection(collection_name="summaries")
+    collection_name.insert_one(summary)
+
+    return Summary(**summary).to_dict()
