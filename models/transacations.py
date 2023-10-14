@@ -4,9 +4,9 @@ from pydantic import BaseModel
 class Transaction(BaseModel):
     transaction_id: str
     date: str
-    amount: float
+    amount: str | float
     merchant: str
-    category: List[str]
+    category: List[str] | None = None
     location: dict
     payment_method: str
 
