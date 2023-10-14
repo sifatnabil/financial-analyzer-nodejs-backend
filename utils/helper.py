@@ -8,8 +8,8 @@ def get_collection(db_name="TransactionDB", collection_name="transactions"):
     # Provide the mongodb atlas url to connect python to mongodb using pymongo
     CONNECTION_STRING = config["MONGO_CONNECTION_STRING"]
     
-    # Create a connection using MongoClient. You can import MongoClient or use pymongo.MongoClient
+    # Create a connection using MongoClient
     client = MongoClient(CONNECTION_STRING)
     
-    # Create the database for our example (we will use the same database throughout the tutorial
+    # Get the database collection instance
     return client[db_name][collection_name]
