@@ -107,7 +107,7 @@ def calculate_summary(df: DataFrame) -> dict:
 
         last_month_cumulative_avg = last_month_daily_summary["cumulative_sum"].iloc[-1]
         caution_metric = \
-            round((last_month_cumulative_avg - prev_avg) / prev_avg  * 100, 2)
+            round((last_month_cumulative_avg - prev_avg) / max(prev_avg, 1)  * 100, 2)
         
         # TODO: Last Income Comparison
     
