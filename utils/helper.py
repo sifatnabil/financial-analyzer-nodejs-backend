@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from dotenv import dotenv_values
 
-def get_database(db_name="TransactionDB", collection_name="transactions"):
+def get_collection(db_name="TransactionDB", collection_name="transactions"):
    # Fetch the configuration settings
     config = dotenv_values(".env")
  
