@@ -10,9 +10,10 @@ from utils.processing import (
     clean_amount,
     clean_category
 )
-from utils.analyzer import calculate_summary
+from utils.analyzer import calculate_summary, calculate_difference
 from utils.helper import get_collection
-from schema.schemas import list_serial
+from schema import transactions
+from schema import summaries
 from pymongo import UpdateOne
 
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
@@ -68,18 +69,24 @@ def analyze_data(txs: List[Transaction]) -> dict:
 
     # Collect all the transactions from the database
     collection_name = get_collection()
-    transactions = list_serial(collection_name.find())
+    transactions_data = transactions.list_serial(collection_name.find())
 
-    df = pd.json_normalize(transactions)
+    df = pd.json_normalize(transactions_data)
 
     if df.shape[0] < 25:
         return {"error": "Not enough data to analyze"}
-   
+    
+    # Get the previous summary here
+    collection_name = get_collection(collection_name="summaries")
+    prev_summaries = summaries.list_serial(collection_name.find())
+
     #  Calculate the Summary here
     summary = calculate_summary(df)
 
     # Store Summary in the collection
-    collection_name = get_collection(collection_name="summaries")
     collection_name.insert_one(summary)
+
+    # Calculate the difference between the previous and current summary
+    difference = calculate_difference(prev_summaries, summary)
 
     return Summary(**summary).to_dict()
