@@ -4,6 +4,13 @@ from pandas import DataFrame
 
 
 def calculate_summary(df: DataFrame) -> dict:
+    """ Calculate the summary of the transaction data
+        Args:
+            df: DataFrame containing the transaction data
+        
+        Returns:
+            dict: A dictionary containing the summary of the transaction data
+    """
     
     # Find The Current total spending and earning
     total_spending = round(df[df["amount"] < 0]["amount"].sum(), 2)
@@ -134,6 +141,16 @@ def calculate_summary(df: DataFrame) -> dict:
     }
 
 def calculate_difference(prev_summaries, current_summary):
+    """
+        Calculate the difference between the previous and current summary
+
+        Args:
+            prev_summaries: A list of previous summaries
+            current_summary: The current summary
+
+        Returns:
+            dict: A dictionary containing the difference between the previous and current summary    
+    """
 
     # If there are no previous summary to compare with return the current summary
     if not prev_summaries:
