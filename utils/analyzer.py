@@ -129,9 +129,95 @@ def calculate_summary(df: DataFrame) -> dict:
         "totalSpendingPercentage": total_spending_percentage,
         "cautionDate": None,
         "metric": None,
-        "maxTransaction": None,
-        "modeMerchant": None,
+        "maxTransaction": daily_summary["total_spending"].max(),
+        "modeMerchant": df[df["amount"] < 0]["merchant"].mode()[0],
     }
 
 def calculate_difference(prev_summaries, current_summary):
-    print('prev summaries are: ', prev_summaries)
+
+    # If there are no previous summary to compare with return the current summary
+    if not prev_summaries:
+        return {
+            "status": "",
+            "totalSpending": "",
+            "totalEarning": "",
+            "total_spending_percentage": "",
+            "cautionDate": "",
+            "metric": "",
+            "maxTransaction": "",
+            "modeMerchant": ""
+        }
+    
+    prev_summaries_df = pd.json_normalize(prev_summaries)
+    current_summary_df = pd.json_normalize(current_summary)
+
+    # Calculate separate field values for comparison
+    # Status and caution date check with last summary
+    last_status = prev_summaries_df["status"].iloc[-1]
+    current_status = current_summary_df["status"].iloc[-1]
+
+    if last_status == "nomral" and current_status == "normal":
+        status = "financial status is good"
+        caution_date = "Nothing for now"
+    elif last_status == "normal" and current_status == "anomaly":
+        status = "Should be careful with spending"
+        caution_date = f"Anomaly detected on {current_summary_df['cautionDate'].iloc[-1]}"
+    elif last_status == "anomaly" and current_status == "normal":
+        status = "current status is improving, should continue"
+        caution_date = f"Last Anomaly detected on {prev_summaries_df['cautionDate'].iloc[-1]}"
+    elif last_status == "anomaly" and current_status == "anomaly":
+        status = "should be really careful with spending"
+        caution_date = f"Last Anomaly detected on {prev_summaries_df['cautionDate'].iloc[-1]} and still continuing"
+
+    # Total Spending
+    last_total_spending = prev_summaries_df["totalSpending"].iloc[-1]
+    current_total_spending = current_summary_df["totalSpending"].iloc[-1]
+    print(current_summary_df.head())
+    if abs(last_total_spending) < abs(current_total_spending):
+        total_spending = f"Spendings increased by {round(abs(current_total_spending) - abs(last_total_spending), 2)}"
+    else: 
+        total_spending = "Spending amount is the same"
+
+    # Total Earning
+    last_total_earning = prev_summaries_df["totalEarning"].iloc[-1]
+    current_total_earning = current_summary_df["totalEarning"].iloc[-1]
+    if last_total_earning < current_total_earning:
+        total_earning = f"Earning increased by {round(abs(current_total_earning) - abs(last_total_earning), 2)}"
+    else:
+        total_earning = "Earning amount is the same"
+
+    # Total Spending Percentage
+    last_total_spending = prev_summaries_df["totalSpendingPercentage"].iloc[-1]
+    current_total_spending = current_summary_df["totalSpendingPercentage"].iloc[-1]
+    if last_total_spending < current_total_spending:
+        total_spending_percentage = f"Spending Percentage increased by {round(abs(current_total_spending) - abs(last_total_spending), 2)}"
+    else:
+        total_spending_percentage = "Spending Percentage is the same"
+
+    # Max Transaction
+    last_max_transaction = prev_summaries_df["maxTransaction"].iloc[-1]
+    current_max_transaction = current_summary_df["maxTransaction"].iloc[-1]
+    if last_max_transaction < current_max_transaction:
+        max_transaction = f"Max Transaction increased by {abs(current_max_transaction) - abs(last_max_transaction)}"
+    elif last_max_transaction == current_max_transaction:
+        max_transaction = f"Max Transaction is the same"
+    else: 
+        max_transaction = f"Max Transaction decreased by {abs(current_max_transaction) - abs(last_max_transaction)}"
+    
+    # Mode Merchant
+    last_mode_merchant = prev_summaries_df["modeMerchant"].iloc[-1]
+    current_mode_merchant = current_summary_df["modeMerchant"].iloc[-1]
+    if last_mode_merchant != current_mode_merchant:
+        mode_merchant = f"You are spending more on {last_mode_merchant} which was previously {current_mode_merchant}"
+    else:
+        mode_merchant = f"You are still spending the most on {last_mode_merchant}"
+        
+    return {
+        "status": status,
+        "totalSpending": total_spending,
+        "totalEarning": total_earning,
+        "totalSpendingPercentage": total_spending_percentage,
+        "cautionDate": caution_date,
+        "maxTransaction": max_transaction,
+        "modeMerchant": mode_merchant
+    }

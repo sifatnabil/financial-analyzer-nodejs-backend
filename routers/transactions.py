@@ -3,7 +3,8 @@ import pandas as pd
 from fastapi import APIRouter
 from typing import List
 from models.transacations import Transaction
-from models.summary import Summary
+from models.summaries import Summary
+from models.differences import Difference
 from utils.processing import (
     validate_and_fix_date,
     validate_and_fix_amount,
@@ -63,6 +64,10 @@ def process_and_store_data(txs: List[Transaction]) -> bool:
     # Return True if the data is processed and stored successfully
     return True
 
+@router.post("/interpret")
+def interpret_response(summary: Summary, difference: Difference) -> dict:
+    pass
+
 @router.post("/analyze")
 def analyze_data(txs: List[Transaction]) -> dict:
     process_and_store_data(txs)
@@ -88,5 +93,10 @@ def analyze_data(txs: List[Transaction]) -> dict:
 
     # Calculate the difference between the previous and current summary
     difference = calculate_difference(prev_summaries, summary)
+    print("difference is:", difference)
 
-    return Summary(**summary).to_dict()
+    # Return the summary and comparison between the previous and current summary
+    return {
+        "currentSummary": Summary(**summary).to_dict(), 
+        "comparison": Difference(**difference).to_dict()
+    }
