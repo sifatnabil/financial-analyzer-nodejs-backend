@@ -115,7 +115,7 @@ def calculate_summary(df: DataFrame) -> dict:
             "status": "anomaly",
             "totalSpending": total_spending,
             "totalEarning": total_earning,
-            "total_spending_percentage": total_spending_percentage,
+            "totalSpendingPercentage": total_spending_percentage,
             "cautionDate": caution_date,
             "metric": caution_metric,
             "maxTransaction": caution_amount,
@@ -126,9 +126,12 @@ def calculate_summary(df: DataFrame) -> dict:
         "status": "normal",
         "totalSpending": total_spending,
         "totalEarning": total_earning,
-        "total_spending_percentage": total_spending_percentage,
+        "totalSpendingPercentage": total_spending_percentage,
         "cautionDate": None,
         "metric": None,
         "maxTransaction": None,
         "modeMerchant": None,
     }
+
+def calculate_difference(prev_summaries, current_summary):
+    print('prev summaries are: ', prev_summaries)
