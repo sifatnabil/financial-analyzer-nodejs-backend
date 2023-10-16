@@ -67,7 +67,15 @@ def process_and_store_data(txs: List[Transaction]) -> bool:
 
 @router.post("/interpret")
 def interpret_response(summary: Summary, difference: Difference) -> dict:
+    # Get the interpretation results
     interpretation = interpret(summary, difference)
+
+    # Store the interpretation with the summary id in the db
+    collection_name = get_collection(collection_name="interpretations")
+    collection_name.insert_one({
+        "summary_id": summary["_id"],
+        "interpretations": interpretation,
+    })
 
     return interpretation
 
