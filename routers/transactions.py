@@ -12,6 +12,7 @@ from utils.processing import (
     clean_category
 )
 from utils.analyzer import calculate_summary, calculate_difference
+from utils.interpreter import interpret
 from utils.helper import get_collection
 from schema import transactions
 from schema import summaries
@@ -66,7 +67,9 @@ def process_and_store_data(txs: List[Transaction]) -> bool:
 
 @router.post("/interpret")
 def interpret_response(summary: Summary, difference: Difference) -> dict:
-    pass
+    interpretation = interpret(summary, difference)
+
+    return interpretation
 
 @router.post("/analyze")
 def analyze_data(txs: List[Transaction]) -> dict:
@@ -95,8 +98,12 @@ def analyze_data(txs: List[Transaction]) -> dict:
     difference = calculate_difference(prev_summaries, summary)
     print("difference is:", difference)
 
+    # Interpret the summary and difference
+    interpreted_response = interpret_response(summary, difference)
+
     # Return the summary and comparison between the previous and current summary
     return {
         "currentSummary": Summary(**summary).to_dict(), 
-        "comparison": Difference(**difference).to_dict()
+        "comparison": Difference(**difference).to_dict(),
+        "interpretation": interpreted_response
     }
