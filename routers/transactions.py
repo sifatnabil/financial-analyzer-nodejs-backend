@@ -5,7 +5,7 @@ from typing import List
 from models.transacations import Transaction
 from models.summaries import Summary
 from models.differences import Difference
-from models.interpretation import Interpretation
+from models.interpretation import Interpretation, InterpretationResponse
 from utils.processing import (
     validate_and_fix_date,
     validate_and_fix_amount,
@@ -71,21 +71,42 @@ async def interpret_response(interpretation: Interpretation) -> dict:
 
     # Get the Prompts from the databaes
     prompts = get_prompts(interpretation.ids)
-    print(prompts)
+
+    # Save the result for each prompt
+    interpretation_dict = {}
 
     # Get the interpretation results
-    interpreted_result = await interpret(interpretation.summary, interpretation.difference)
+    for idx, prompt in enumerate(prompts):
+        interpreted_result = await interpret(interpretation.summary, 
+                                         interpretation.difference,
+                                         prompt)
+        
+        interpretation_dict[interpretation.ids[idx]] = interpreted_result
 
     # Store the interpretation with the summary id in the db
     collection_name = get_collection(collection_name="interpretations")
-    collection_name.insert_one({
-        "summary_id": interpretation.summaryId,
-        "interpretations": interpreted_result,
-    })
+        # Define the filter and update
+    filter = {"summaryId": interpretation.summaryId}
+    update = {"$set": {"interpretation_dict": interpretation_dict}}
 
-    return {
-        "interpretations": interpreted_result,
-    }
+    # Update the record in the collection
+    collection_name.update_one(filter, update, upsert=True)
+
+    return interpretation_dict
+
+@router.post("/summary/interpret/choose")
+async def choose(choice: InterpretationResponse) -> None:
+    chosen_prompt_id = choice.chosen_prompt_id
+    
+    # Store the chosen prompt in the db
+    collection_name = get_collection(collection_name="interpretations")
+    
+    # Insert the chosen prompt id
+    filter = {"summaryId": choice.summaryId}
+    update = {"$set": {"chosen_prompt_id": chosen_prompt_id}}
+
+    # Update the record in the collection
+    collection_name.update_one(filter, update)
 
 @router.post("/analyze")
 async def analyze_data(txs: List[Transaction]) -> dict:
