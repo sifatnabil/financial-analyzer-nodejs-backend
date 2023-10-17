@@ -5,6 +5,7 @@ from typing import List
 from models.transacations import Transaction
 from models.summaries import Summary
 from models.differences import Difference
+from models.interpretation import Interpretation
 from utils.processing import (
     validate_and_fix_date,
     validate_and_fix_amount,
@@ -66,24 +67,25 @@ async def process_and_store_data(txs: List[Transaction]) -> bool:
     return True
 
 @router.post("/summary/interpret")
-async def interpret_response(summary: Summary, difference: Difference, ids: List[str]) -> dict:
+async def interpret_response(interpretation: Interpretation) -> dict:
 
-    prompts = get_prompts(ids)
+    # Get the Prompts from the databaes
+    prompts = get_prompts(interpretation.ids)
+    print(prompts)
 
     # Get the interpretation results
-    interpretation = await interpret(summary, difference)
-
-    # Prompts
-
+    interpreted_result = await interpret(interpretation.summary, interpretation.difference)
 
     # Store the interpretation with the summary id in the db
     collection_name = get_collection(collection_name="interpretations")
     collection_name.insert_one({
-        "summary_id": summary["_id"],
-        "interpretations": interpretation,
+        "summary_id": interpretation.summaryId,
+        "interpretations": interpreted_result,
     })
 
-    return interpretation
+    return {
+        "interpretations": interpreted_result,
+    }
 
 @router.post("/analyze")
 async def analyze_data(txs: List[Transaction]) -> dict:
@@ -106,23 +108,16 @@ async def analyze_data(txs: List[Transaction]) -> dict:
     summary = calculate_summary(df)
 
     # Store Summary in the collection
-    collection_name.insert_one(summary)
+    result = collection_name.insert_one(summary)
+    summary_id = str(result.inserted_id)
 
     # Calculate the difference between the previous and current summary
     difference = calculate_difference(prev_summaries, summary)
     print("difference is:", difference)
 
-    # Interpret the summary and difference
-    ids = [
-        "652e347b164c92bb31626f4f",
-        "652e349e164c92bb31626f50",
-        "652e34ad164c92bb31626f51"
-    ]
-    interpreted_response = await interpret_response(summary, difference, ids)
-
     # Return the summary and comparison between the previous and current summary
     return {
-        "currentSummary": Summary(**summary).to_dict(), 
-        "comparison": Difference(**difference).to_dict(),
-        "interpreatation": interpreted_response
+        "summary": Summary(**summary).to_dict(), 
+        "difference": Difference(**difference).to_dict(),
+        "summaryId": summary_id
     }
