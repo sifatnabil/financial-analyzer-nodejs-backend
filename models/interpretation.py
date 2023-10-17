@@ -8,3 +8,7 @@ class Interpretation(BaseModel):
     difference: Difference
     summaryId: str
     ids: List[str]
+
+class InterpretationResponse(BaseModel):
+    summaryId: str
+    chosen_prompt_id: str
