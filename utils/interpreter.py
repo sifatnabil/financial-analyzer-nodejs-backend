@@ -4,7 +4,7 @@ from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from dotenv import dotenv_values
 
-async def interpret(current_summary, previous_summary):
+async def interpret(current_summary, previous_summary, prompt):
     config = dotenv_values(".env")
     openai_api_key = config["OPENAI_API_KEY"]
 
@@ -12,17 +12,7 @@ async def interpret(current_summary, previous_summary):
                      model_name="gpt-3.5-turbo",
                      temperature=0)
     
-    prompt_template = """
-    Act as a financial advisor for the user. You have access to user's current financial status and the changes in their financial status.
-    Please provide a summary of the user's financial status, including their current spending, earning, and spending percentage, as well as any anomalies detected.
-    combine the two objects into a single object and convert it to human-readable text. If information about change in the financial status is missing, 
-    provide the summary of the user's financial status without the changes.
-
-    Here is the current summary: {current_summary}
-
-    and here is the change in the financial status: {comparison}
-
-    """
+    prompt_template = prompt
 
     prompt = PromptTemplate(template=prompt_template, input_variables=["current_summary", "comparison"])
 
@@ -31,6 +21,7 @@ async def interpret(current_summary, previous_summary):
         prompt=prompt
     )
 
-    answer = llm_chain.predict(current_summary=current_summary, comparison=previous_summary)
+    answer = await llm_chain.apredict(current_summary=current_summary, comparison=previous_summary)
+
 
     return answer
