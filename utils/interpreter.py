@@ -1,9 +1,10 @@
+import asyncio
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from dotenv import dotenv_values
 
-def interpret(current_summary, previous_summary):
+async def interpret(current_summary, previous_summary):
     config = dotenv_values(".env")
     openai_api_key = config["OPENAI_API_KEY"]
 
