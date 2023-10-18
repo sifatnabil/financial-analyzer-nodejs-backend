@@ -3,5 +3,5 @@ __pycache__
 *.pdf
 data_cleaning*
 data/*.csv
-*.json
+data/*.json
 node_modules
