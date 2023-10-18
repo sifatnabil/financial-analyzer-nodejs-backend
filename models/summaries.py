@@ -17,7 +17,7 @@ class Summary(BaseModel):
             "status": self.status,
             "totalSpending": self.totalSpending,
             "totalEarning": self.totalEarning,
-            "total_spending_percentage": self.totalSpendingPercentage,
+            "totalSpendingPercentage": self.totalSpendingPercentage,
             "cautionDate": self.cautionDate,
             "metric": self.metric,
             "maxTransaction": self.maxTransaction,

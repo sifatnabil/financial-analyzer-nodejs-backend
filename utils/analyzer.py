@@ -158,7 +158,7 @@ def calculate_difference(prev_summaries, current_summary):
             "status": "",
             "totalSpending": "",
             "totalEarning": "",
-            "total_spending_percentage": "",
+            "totalSpendingPercentage": "",
             "cautionDate": "",
             "metric": "",
             "maxTransaction": "",
