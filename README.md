@@ -31,6 +31,14 @@ In today's dynamic and complex financial landscape, having a clear understanding
 
 5. Open the swagger UI at `http://127.0.0.1/api/docs`
 
+For the Nodejs Wrapper:
+
+1. Install the required packages using the command: `npm install`
+
+2. Run the server using `npm run start`
+
+The API will run on port 3000 by default.
+
 ## Key Features
 
 * Upload financial data
