@@ -2,5 +2,6 @@ __pycache__
 .env
 *.pdf
 data_cleaning*
-*.csv
+data/*.csv
 *.json
+node_modules
